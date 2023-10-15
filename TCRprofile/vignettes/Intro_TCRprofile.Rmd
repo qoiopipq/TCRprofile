@@ -1,0 +1,95 @@
+---
+title: "Introduction to TCRprofile"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to TCRprofile}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# TCRprofile package
+
+The aim of TCRprofile package is to select functional T cells with **paired** TCR alpha and beta chains. 
+
+The selection criteria of paired TCR alpha and beta chains are either a cell with:
+
+  - 1 alpha chain + 1 beta chain
+  
+  - 2 alpha chains + 1 beta chain
+
+
+As a result of these, the summary of clonotype pairing table will provide a brief summary. 
+
+A cell with functional alpha beta chains, will be classified as **paired**
+
+A cell with more than two chains (except for 2 alpha chains + 1 beta chain) will be classified as **multi** (cell with multiple chains).
+
+A cell with only 1 alpha chain or 1 beta chain, will be classified as **tra** or **trb**. 
+
+For the downstream analysis, we can focus those labelled as **paired**. 
+
+
+
+# To test our TCRprofile package 
+
+This takes files from Cell Ranger TCR outputs (cellranger-5.0.0). Those only with CDR3 (CDR3nt and CDR3aa).  
+
+The latest Cell Ranger TCR output files (cellranger-7.1) contain more information, like including FWR1 to FWR4,and CDR1 to CDR3. 
+
+Our function can be easily amended to the lastest Cell Ranger version. We can keep multiple versions to accommodate various output formats from different Cell Ranger versions. 
+
+
+```{r setup}
+library(TCRprofile)
+suppressMessages(library(dplyr))
+suppressMessages(library(reshape2))
+suppressMessages(library(stringr))
+
+```
+
+To use NSCLC TCR data from 10X data (nsclc-tumor-1-standard-5-0-0):
+
+Gene expression, TCR Amplified, and BCR Amplified libraries were generated from about 15,000 cells (expected cell recovery 9,000) as described in the Single Cell V(D)J Reagent Kits User Guide (CG000086 Rev C) and sequenced on the Illumina NovaSeq 6000.
+
+For our purpose, only these following TCR data files were downloaded:
+
+-   clonotypes.csv
+
+-   consensus_annotation.csv
+
+-   filtered_contig_annotations.csv
+
+```{r,include=FALSE}
+datawd<-"/Users/nccs504/Documents/TestData/NSCLC_tumorTCR_sample/"
+```
+
+
+```{r}
+
+clono<-read.csv(paste0(datawd,"vdj_v1_hs_nsclc_multi_5gex_t_b_vdj_t_clonotypes.csv"), header = TRUE, sep=",")
+
+cons<-read.csv(paste0(datawd,"vdj_v1_hs_nsclc_multi_5gex_t_b_vdj_t_consensus_annotations.csv"), header = TRUE, sep = ",")
+
+barcodes<-read.csv(paste0(datawd,"vdj_v1_hs_nsclc_multi_5gex_t_b_vdj_t_filtered_contig_annotations.csv"), head=TRUE, sep=",")
+
+```
+
+
+```{r}
+FINAL_test<-AddTCR(clono = clono, consensus = cons, filtered_barcodes = barcodes)
+head(FINAL_test)
+```
+
+### Summary of clonotype pairing
+
+```{r}
+table(FINAL_test$pair)
+```
