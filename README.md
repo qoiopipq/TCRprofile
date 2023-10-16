@@ -1,5 +1,5 @@
 # TCRprofile
-Initial TCRprofile R package for pairing alpha beta chains to label functional T cells
+TCRprofile R package is designed for pairing alpha beta chains to label functional T cells from 10X immune profile outputs. 
 
 ## Aim 
 
